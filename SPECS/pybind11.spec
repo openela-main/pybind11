@@ -4,6 +4,11 @@
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Packaging_Header_Only_Libraries
 %global debug_package %{nil}
 
+%ifarch ppc64le
+# The tests are not LTO-compatible on power
+%global _lto_cflags %{nil}
+%endif
+
 # Whether to run the tests, enabled by default
 %bcond_without tests
 
@@ -17,7 +22,7 @@
 
 Name:    pybind11
 Version: 2.6.2
-Release: 4%{?dist}
+Release: 6%{?dist}
 Summary: Seamless operability between C++11 and Python
 License: BSD
 URL:	 https://github.com/pybind/pybind11
@@ -65,8 +70,11 @@ C++ code.
 
 %package devel
 Summary:  Development headers for pybind11
+# The manual epoch is set to make this the highest possible EVR
+# of pybind11-static across Pythons in RHEL9, to fix RHEL-5571 with RHEL-38108
+Epoch:    1
 # https://fedoraproject.org/wiki/Packaging:Guidelines#Packaging_Header_Only_Libraries
-Provides: %{name}-static = %{version}-%{release}
+Provides: %{name}-static = 1:%{version}-%{release}
 Obsoletes: python39-%{name}-devel < %{version}-%{release}
 # For dir ownership
 Requires: cmake
@@ -80,7 +88,7 @@ This package contains the development headers for pybind11.
 %package -n     python2-%{name}
 Summary:        %{summary}
 %{?python_provide:%python_provide python2-pybind11}
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
+Requires: %{name}-devel%{?_isa} = 1:%{version}-%{release}
 
 %description -n python2-%{name}
 %{base_description}
@@ -93,7 +101,7 @@ This package contains the Python 2 files.
 Summary:        %{summary}
 %{?python_provide:%python_provide python3-pybind11}
 
-Requires: %{name}-devel%{?_isa} = %{version}-%{release}
+Requires: %{name}-devel%{?_isa} = 1:%{version}-%{release}
 
 %if !%{python2_enabled}
 # Take care of upgrade path
@@ -181,6 +189,14 @@ PYBIND11_USE_CMAKE=true %py3_install "--install-purelib" "%{python3_sitearch}"
 %endif
 
 %changelog
+* Wed Jul 24 2024 Miro Hrončok <mhroncok@redhat.com> - 2.6.2-6
+- Introduce epoch to pybind11-devel to sort newer than python3.11-pybind11-devel
+- Resolves: RHEL-38108
+
+* Tue Feb 22 2022 Tomas Orsava <torsava@redhat.com> - 2.6.2-5
+- Add gating configuration and a simple smoke test
+- Related: rhbz#1950291
+
 * Tue Feb 08 2022 Tomas Orsava <torsava@redhat.com> - 2.6.2-4
 - Add automatically generated Obsoletes tag with the python39- prefix
   for smoother upgrade from RHEL8
