@@ -21,15 +21,15 @@
 %global python3_enabled 1
 
 Name:    pybind11
-Version: 2.6.2
-Release: 6%{?dist}
+Version: 2.10.4
+Release: 2%{?dist}
 Summary: Seamless operability between C++11 and Python
 License: BSD
 URL:	 https://github.com/pybind/pybind11
 Source0: https://github.com/pybind/pybind11/archive/v%{version}/%{name}-%{version}.tar.gz
 
 # Patch out header path
-Patch1:  pybind11-2.6.1-hpath.patch
+Patch1:  pybind11-2.10.1-hpath.patch
 
 BuildRequires: make
 %if %{python2_enabled}
@@ -175,6 +175,7 @@ PYBIND11_USE_CMAKE=true %py3_install "--install-purelib" "%{python3_sitearch}"
 %{_includedir}/pybind11/
 %{_datadir}/cmake/pybind11/
 %{_bindir}/pybind11-config
+%{_datadir}/pkgconfig/%{name}.pc
 
 %if %{python2_enabled}
 %files -n python2-%{name}
@@ -189,6 +190,14 @@ PYBIND11_USE_CMAKE=true %py3_install "--install-purelib" "%{python3_sitearch}"
 %endif
 
 %changelog
+* Thu Oct 31 2024 Pavel Simovec <psimovec@redhat.com> - 2.10.4-2
+- rebuilt
+- Resolves: RHEL-62014
+
+* Thu Oct 10 2024 Pavel Simovec <psimovec@redhat.com> - 2.10.4-1
+- Update to 2.10.4
+- Resolves: RHEL-62014
+
 * Wed Jul 24 2024 Miro Hrončok <mhroncok@redhat.com> - 2.6.2-6
 - Introduce epoch to pybind11-devel to sort newer than python3.11-pybind11-devel
 - Resolves: RHEL-38108
